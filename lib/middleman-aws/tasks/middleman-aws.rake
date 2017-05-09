@@ -15,8 +15,16 @@ namespace :mm do
   desc 'Compile all files into the build directory'
   task :build do
     puts '## Compiling static pages'
-    status = system 'bundle exec middleman build'
-    puts status ? 'Build successful.' : 'Build failed.'
+    command_was_successful = system 'bundle exec middleman build --verbose'
+    if ENV['BREAK_BUILD_ON_ERRORS']
+      if command_was_successful
+        puts 'Build successful.'
+      else
+        raise 'Build failed.'
+      end
+    else
+      puts command_was_successful ? 'Build successful.' : 'Build failed.'
+    end
   end
 
   desc 'Deploy to S3 and invalidate Cloudfront after a Git commit/push'
